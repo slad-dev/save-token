@@ -1,0 +1,100 @@
+{
+  "server": {
+    "listen_addr": ":8080",
+    "upstream_timeout": "120s"
+  },
+  "database": {
+    "path": "data/gateway-local.db"
+  },
+  "local": {
+    "enabled": true,
+    "default_base_url": "https://your-openai-compatible-host.example/v1",
+    "default_strategy": "balanced",
+    "auto_open_browser": true
+  },
+  "intelligent": {
+    "web_search": {
+      "enabled": false,
+      "provider": "tavily",
+      "api_key": "",
+      "base_url": "https://api.tavily.com",
+      "max_results": 5,
+      "timeout": "15s"
+    },
+    "rag": {
+      "enabled": true,
+      "max_input_characters": 128000,
+      "max_estimated_tokens": 32000,
+      "compression_threshold_chars": 50000,
+      "keep_recent_messages": 8,
+      "summary_max_chars": 2000
+    },
+    "routing": {
+      "enabled": false,
+      "tiers": [],
+      "rules": []
+    }
+  },
+  "billing": {
+    "enabled": false,
+    "default_chat_per_1k": 100,
+    "default_embedding_per_1k": 20,
+    "minimum_request_charge": 1,
+    "web_search_surcharge": 0,
+    "model_pricing": []
+  },
+  "cache": {
+    "enabled": true,
+    "exact_chat_ttl": "10m",
+    "max_body_bytes": 1048576,
+    "semantic_enabled": true,
+    "semantic_similarity": 0.9,
+    "semantic_max_candidates": 25,
+    "semantic_embedding": {
+      "provider": "ollama",
+      "base_url": "http://127.0.0.1:11434",
+      "model": "nomic-embed-text",
+      "timeout": "15s"
+    }
+  },
+  "rate_limit": {
+    "enabled": false,
+    "requests_per_minute": 120,
+    "burst": 40
+  },
+  "auth": {
+    "cookie_name": "ag_console_session",
+    "session_ttl": "168h",
+    "secure_cookie": false,
+    "frontend_base_url": "http://localhost:3000",
+    "email_code": {
+      "enabled": false,
+      "dev_mode": false,
+      "otp_ttl": "10m",
+      "code_length": 6,
+      "subject": "Agent Gateway Login Code",
+      "from_name": "Agent Gateway",
+      "allowed_domains": [],
+      "smtp": {
+        "host": "",
+        "port": 465,
+        "username": "",
+        "password": "",
+        "from_email": ""
+      }
+    },
+    "github": {
+      "enabled": false,
+      "client_id": "",
+      "client_secret": "",
+      "redirect_url": "",
+      "http_timeout": "15s"
+    }
+  },
+  "bootstrap": {
+    "upstreams": [],
+    "model_routes": [],
+    "users": [],
+    "api_keys": []
+  }
+}

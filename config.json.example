@@ -1,0 +1,225 @@
+{
+  "server": {
+    "listen_addr": ":8080",
+    "upstream_timeout": "120s"
+  },
+  "database": {
+    "path": "data/gateway.db"
+  },
+  "intelligent": {
+    "web_search": {
+      "enabled": true,
+      "provider": "tavily",
+      "api_key": "tvly-your-tavily-api-key",
+      "base_url": "https://api.tavily.com",
+      "max_results": 5,
+      "timeout": "15s"
+    },
+    "rag": {
+      "enabled": true,
+      "max_input_characters": 128000,
+      "max_estimated_tokens": 32000,
+      "compression_threshold_chars": 50000,
+      "keep_recent_messages": 8,
+      "summary_max_chars": 2000
+    },
+    "routing": {
+      "enabled": true,
+      "tiers": [
+        {
+          "name": "cheap",
+          "model": "deepseek-ai/DeepSeek-V3"
+        },
+        {
+          "name": "premium",
+          "model": "gpt-4o"
+        }
+      ],
+      "rules": [
+        {
+          "name": "simple-chat-to-cheap",
+          "intent_class": "simple_chat",
+          "model_pattern": "*",
+          "route_tier": "cheap",
+          "enable_web_search": false
+        },
+        {
+          "name": "realtime-lookup-to-cheap-with-search",
+          "intent_class": "realtime_lookup",
+          "model_pattern": "*",
+          "route_tier": "cheap",
+          "enable_web_search": true
+        },
+        {
+          "name": "complex-reasoning-to-premium",
+          "intent_class": "complex_reasoning",
+          "model_pattern": "*",
+          "route_tier": "premium",
+          "enable_web_search": false
+        },
+        {
+          "name": "long-context-to-premium",
+          "intent_class": "long_context",
+          "model_pattern": "*",
+          "route_tier": "premium",
+          "min_input_chars": 8000,
+          "enable_web_search": false
+        }
+      ]
+    }
+  },
+  "billing": {
+    "enabled": true,
+    "default_chat_per_1k": 100,
+    "default_embedding_per_1k": 20,
+    "minimum_request_charge": 1,
+    "web_search_surcharge": 5,
+    "model_pricing": [
+      {
+        "model_pattern": "gpt-4*",
+        "per_1k_tokens": 100,
+        "request_kind": "chat"
+      },
+      {
+        "model_pattern": "text-embedding-3-*",
+        "per_1k_tokens": 20,
+        "request_kind": "embedding"
+      }
+    ]
+  },
+  "cache": {
+    "enabled": true,
+    "exact_chat_ttl": "10m",
+    "max_body_bytes": 1048576,
+    "semantic_enabled": true,
+    "semantic_similarity": 0.9,
+    "semantic_max_candidates": 25,
+    "semantic_embedding": {
+      "provider": "ollama",
+      "base_url": "http://127.0.0.1:11434",
+      "model": "nomic-embed-text",
+      "timeout": "15s"
+    }
+  },
+  "rate_limit": {
+    "enabled": true,
+    "requests_per_minute": 60,
+    "burst": 20
+  },
+  "bootstrap": {
+    "upstreams": [
+      {
+        "name": "openai-primary",
+        "base_url": "https://api.openai.com",
+        "api_key": "your-primary-api-key",
+        "weight": 2,
+        "enabled": true,
+        "supported_models": [
+          "gpt-4o-mini",
+          "gpt-4.1",
+          "text-embedding-3-small"
+        ]
+      },
+      {
+        "name": "openai-secondary",
+        "base_url": "https://api.openai.com",
+        "api_key": "your-secondary-api-key",
+        "weight": 1,
+        "enabled": true,
+        "supported_models": [
+          "gpt-4o-mini",
+          "gpt-4.1",
+          "text-embedding-3-small"
+        ]
+      },
+      {
+        "name": "compatible-fallback",
+        "base_url": "https://openrouter.ai/api",
+        "api_key": "your-fallback-api-key",
+        "weight": 1,
+        "enabled": true,
+        "supported_models": [
+          "openai/*",
+          "gpt-*"
+        ]
+      }
+    ],
+    "model_routes": [
+      {
+        "model_pattern": "gpt-4.1",
+        "strategy": "round_robin",
+        "upstreams": [
+          "openai-primary",
+          "openai-secondary"
+        ]
+      },
+      {
+        "model_pattern": "text-embedding-3-*",
+        "strategy": "fixed",
+        "upstreams": [
+          "openai-primary"
+        ]
+      },
+      {
+        "model_pattern": "*",
+        "strategy": "round_robin",
+        "upstreams": [
+          "openai-primary",
+          "openai-secondary",
+          "compatible-fallback"
+        ]
+      }
+    ],
+    "users": [
+      {
+        "name": "demo-user",
+        "balance": 100000,
+        "plan": "pro",
+        "is_active": true
+      }
+    ],
+    "api_keys": [
+      {
+        "name": "demo-key",
+        "key": "sk-your-demo-local-key",
+        "user_name": "demo-user",
+        "allow_web_search": true,
+        "is_active": true
+      }
+    ]
+  },
+  "auth": {
+    "cookie_name": "ag_console_session",
+    "session_ttl": "168h",
+    "secure_cookie": false,
+    "frontend_base_url": "http://localhost:3000",
+    "email_code": {
+      "enabled": false,
+      "dev_mode": false,
+      "otp_ttl": "10m",
+      "code_length": 6,
+      "subject": "Agent Gateway 登录验证码",
+      "from_name": "Agent Gateway",
+      "allowed_domains": [
+        "qq.com",
+        "163.com",
+        "gmail.com",
+        "outlook.com"
+      ],
+      "smtp": {
+        "host": "smtp.example.com",
+        "port": 465,
+        "username": "your-email@example.com",
+        "password": "your-smtp-auth-code",
+        "from_email": "your-email@example.com"
+      }
+    },
+    "github": {
+      "enabled": false,
+      "client_id": "your-github-client-id",
+      "client_secret": "your-github-client-secret",
+      "redirect_url": "http://localhost:3000/auth/github/callback",
+      "http_timeout": "15s"
+    }
+  }
+}

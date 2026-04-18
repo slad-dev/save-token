@@ -1,0 +1,25 @@
+# Binaries
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Logs
+*.log
+run.stdout.log
+run.stderr.log
+
+# Runtime data
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# Local config
+config.json
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

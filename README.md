@@ -303,7 +303,7 @@ go build -o save-token.exe .\cmd\gateway
 - 编译产物
 - 任何真实 API Key、Cookie、OAuth Secret、SMTP 密码
 
-当前仓库已通过 [`.gitignore`](./.gitignore) 排除这些运行时文件，但发布前仍建议人工复查。
+当前仓库已通过 [`.gitignore`](./.gitignore) 
 
 ## Roadmap Ideas
 
